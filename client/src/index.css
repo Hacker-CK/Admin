@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-[#F5F7FA] text-[#2C3E50];
+  }
+}
+
+@layer components {
+  .sidebar-link {
+    @apply flex items-center px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-200 relative;
+  }
+  
+  .sidebar-link.active {
+    @apply bg-primary/10 text-primary font-semibold;
+  }
+  
+  /* Active indicator for expanded sidebar */
+  .sidebar-link.active::before {
+    content: '';
+    @apply absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-r;
+  }
+  
+  /* For collapsed sidebar - active indicator as a dot */
+  div[class*="w-20"] .sidebar-link.active::before {
+    @apply hidden;
+  }
+  
+  div[class*="w-20"] .sidebar-link.active {
+    @apply relative;
+  }
+  
+  div[class*="w-20"] .sidebar-link.active::after {
+    content: '';
+    @apply absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-primary rounded-full;
+  }
+
+  .table-head-cell {
+    @apply py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider transition-colors duration-200;
+  }
+  
+  .table-head-cell.cursor-pointer:hover {
+    @apply bg-gray-50;
+  }
+  
+  .table-head-cell.cursor-pointer:active {
+    @apply bg-gray-100;
+  }
+
+  .table-body-cell {
+    @apply py-3 px-4 text-sm;
+  }
+
+  .status-badge-success {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800;
+  }
+
+  .status-badge-pending {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800;
+  }
+
+  .status-badge-failed {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800;
+  }
+
+  .kpi-card {
+    @apply bg-white rounded-xl shadow-sm p-4 md:p-6 flex items-center min-h-[100px] overflow-hidden;
+  }
+
+  .chart-container {
+    @apply h-[240px] relative;
+  }
+}
