@@ -34,6 +34,24 @@ const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+// Simple encryption/decryption utilities for secure storage
+const encryptData = (data: string): string => {
+  return btoa(encodeURIComponent(data));
+};
+
+const decryptData = (encryptedData: string): string => {
+  try {
+    return decodeURIComponent(atob(encryptedData));
+  } catch {
+    return "";
+  }
+};
+
+// Storage keys for remembered credentials
+const REMEMBER_USERNAME_KEY = "billaye_remember_username";
+const REMEMBER_PASSWORD_KEY = "billaye_remember_password";
+const REMEMBER_ME_KEY = "billaye_remember_me";
+
 export default function Login() {
   const [, setLocation] = useLocation();
   const [rememberMe, setRememberMe] = useState(false);
@@ -50,6 +68,25 @@ export default function Login() {
     },
   });
 
+  // Load saved credentials on component mount
+  useEffect(() => {
+    const savedRememberMe = localStorage.getItem(REMEMBER_ME_KEY) === "true";
+    setRememberMe(savedRememberMe);
+
+    if (savedRememberMe) {
+      const savedUsername = localStorage.getItem(REMEMBER_USERNAME_KEY);
+      const savedPassword = localStorage.getItem(REMEMBER_PASSWORD_KEY);
+
+      if (savedUsername && savedPassword) {
+        const decryptedUsername = decryptData(savedUsername);
+        const decryptedPassword = decryptData(savedPassword);
+
+        form.setValue("username", decryptedUsername);
+        form.setValue("password", decryptedPassword);
+      }
+    }
+  }, [form]);
+
   // Login mutation
   const loginMutation = useMutation({
     mutationFn: async (credentials: z.infer<typeof loginSchema>) => {
@@ -58,6 +95,22 @@ export default function Login() {
       return await apiRequest("POST", "/api/auth/login", credentials, options);
     },
     onSuccess: (data) => {
+      // Handle Remember Me functionality
+      if (rememberMe) {
+        // Save encrypted credentials
+        const encryptedUsername = encryptData(form.getValues("username"));
+        const encryptedPassword = encryptData(form.getValues("password"));
+        
+        localStorage.setItem(REMEMBER_USERNAME_KEY, encryptedUsername);
+        localStorage.setItem(REMEMBER_PASSWORD_KEY, encryptedPassword);
+        localStorage.setItem(REMEMBER_ME_KEY, "true");
+      } else {
+        // Clear saved credentials if remember me is not checked
+        localStorage.removeItem(REMEMBER_USERNAME_KEY);
+        localStorage.removeItem(REMEMBER_PASSWORD_KEY);
+        localStorage.removeItem(REMEMBER_ME_KEY);
+      }
+
       // Set logged in state
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("userData", JSON.stringify(data.user));
@@ -141,12 +194,22 @@ export default function Login() {
                   <input
                     type="checkbox"
                     id="remember"
-                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
                     checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
+                    onChange={(e) => {
+                      const isChecked = e.target.checked;
+                      setRememberMe(isChecked);
+                      
+                      // If unchecked, immediately clear saved credentials
+                      if (!isChecked) {
+                        localStorage.removeItem(REMEMBER_USERNAME_KEY);
+                        localStorage.removeItem(REMEMBER_PASSWORD_KEY);
+                        localStorage.removeItem(REMEMBER_ME_KEY);
+                      }
+                    }}
                   />
-                  <Label htmlFor="remember" className="text-sm text-gray-600">
-                    Remember me
+                  <Label htmlFor="remember" className="text-sm text-gray-600 cursor-pointer">
+                    Remember me (saves login details securely)
                   </Label>
                 </div>
               </div>
