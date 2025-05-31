@@ -736,7 +736,7 @@ export default function Transactions() {
   };
 
   // Time period filter state
-  const [timePeriod, setTimePeriod] = useState<'today' | 'week' | 'month' | 'year' | 'alltime' | 'custom'>('week');
+  const [timePeriod, setTimePeriod] = useState<'today' | 'week' | 'month' | 'year' | 'custom'>('week');
   
   // Set default date range based on time period
   useEffect(() => {
@@ -758,8 +758,6 @@ export default function Transactions() {
       const yearAgo = new Date();
       yearAgo.setFullYear(today.getFullYear() - 1);
       setDateRange({ from: yearAgo, to: today });
-    } else if (timePeriod === 'alltime') {
-      setDateRange(undefined);
     }
     // Don't update if custom time period is selected
   }, [timePeriod]);
@@ -1332,14 +1330,6 @@ export default function Transactions() {
           size="sm"
         >
           This Year
-        </Button>
-        <Button 
-          variant={timePeriod === 'alltime' ? 'default' : 'outline'} 
-          onClick={() => setTimePeriod('alltime')}
-          className="rounded-full"
-          size="sm"
-        >
-          All Time
         </Button>
         <DateRangePicker 
           dateRange={dateRange} 
