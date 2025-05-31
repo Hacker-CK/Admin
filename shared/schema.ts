@@ -44,6 +44,7 @@ export const transactions = pgTable("transactions", {
   transactionId: text("transaction_id").notNull(),
   timestamp: timestamp("timestamp").defaultNow(),
   operatorId: integer("operator_id").references(() => operators.id),
+  op: text("op"), // Operator name for quick reference
   recipientId: integer("recipient_id").references(() => users.id),
   ipAddress: text("ip_address"), // Store user's IP address
   deviceInfo: text("device_info"), // Store user's device information
